@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String
+  phone      String   @default("")
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  Habits     Habit[]
+
+  @@map("users")
+}
+
+model Habit {
+  id         String   @id @default(uuid())
+  user_id    String
+  title      String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  user          User            @relation(fields: [user_id], references: [id])
+  HabitDays     HabitDay[]
+  HabitWeekDays HabitWeekDays[]
+
+  @@map("habits")
+}
+
+model HabitDay {
+  id         String   @id @default(uuid())
+  habit_id   String
+  date       DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  habit      Habit    @relation(fields: [habit_id], references: [id])
+
+  @@unique([date, habit_id])
+  @@map("habit_days")
+}
+
+model HabitWeekDays {
+  id         String   @id @default(uuid())
+  habit_id   String
+  week_day   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  habit      Habit    @relation(fields: [habit_id], references: [id])
+
+  @@unique([week_day, habit_id])
+  @@map("habit_week_days")
+}
